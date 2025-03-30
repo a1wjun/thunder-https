@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>thunder-https v1.3 lite</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .success {
+            background-color: #dff0d8;
+            border: 1px solid #d0e9c6;
+            color: #3c763d;
+        }
+
+        .error {
+            background-color: #f2dede;
+            border: 1px solid #ebccd1;
+            color: #a94442;
+        }
+
+        a {
+            color: #337ab7;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>thunder-https v1.3 lite</h1>
+        <div class="input-group">
+            <input type="text" id="thunderLink" 
+                   placeholder="请输入thunder://开头的迅雷链接...">
+        </div>
+        <button onclick="convertThunderLink()">转换链接</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function convertThunderLink() {
+            const thunderLink = document.getElementById('thunderLink').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            // 清空之前的结果
+            resultDiv.className = '';
+            resultDiv.innerHTML = '';
+            resultDiv.style.display = 'none';
+
+            // 验证输入格式
+            if (!thunderLink.startsWith('thunder://')) {
+                showError('链接格式不正确，请以thunder://开头');
+                return;
+            }
+
+            try {
+                // 去除前缀并进行Base64解码
+                const cleanUrl = thunderLink.substring(10).replace(/^AA|ZZ$/g, '');
+                const decodedUrl = atob(cleanUrl);
+
+                // 验证是否是有效URL
+                if (!isValidUrl(decodedUrl)) {
+                    throw new Error('解码后的链接格式无效');
+                }
+
+                // 显示结果
+                showSuccess(`
+                    转换成功！下载地址：
+                    <a href="${decodedUrl}" target="_blank" rel="noopener">${decodedUrl}</a>
+                `);
+            } catch (error) {
+                showError('转换失败：' + error.message);
+            }
+        }
+
+        function isValidUrl(str) {
+            try {
+                new URL(str);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function showSuccess(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'success';
+            resultDiv.innerHTML = message;
+            resultDiv.style.display = 'block';
+        }
+
+        function showError(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'error';
+            resultDiv.innerHTML = message;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
