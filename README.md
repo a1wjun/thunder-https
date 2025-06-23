@@ -19,14 +19,18 @@
 ## 📦 安装指南
 
 ### Windows 系统
-1. 下载最新安装包 [thunder-https_v1.3_AMD64.exe]
+1. 下载最新安装包 [thunder-https_v1.x_AMD64.exe]
 2. 双击运行安装程序
 3. 勾选"创建桌面快捷方式"
 4. 完成安装后即可使用
 
 ### macOS 系统
-1. 下载DMG镜像 [thunder-https_v1.3_ARM64.dmg]
+1. 下载DMG镜像 [thunder-https_v1.x_ARM64.dmg]
 2. 打开镜像文件并将应用拖拽至Applications文件夹
+
+### 其它系统
+1. 下载[thunder_v1.x_lite.html]
+2. 打开文件直接运行即可
 
 ## 🖥 使用教程
 1. 复制迅雷链接 (格式：thunder://xxxxxx)
