@@ -1,0 +1,623 @@
+<!--
+v1.6_lite Thunder link to https link
+created by HelloWorld05
+in 2025.06.23
+Updates:
+1. Reduce unnecessary calculations:
+Merge multiple updateStatus and alert call conditional judgments.
+Simplify the logic of adding padding characters in the base64Decode function.
+2. Remove redundant code:
+Remove HTML entity encoding in the default value of textarea and use line breaks directly.
+Merge multiple disabled state settings.
+3. Add appropriate error handling mechanism:
+Add verification of the decoded URL format in the base64Decode function.
+Use try-catch blocks to capture exceptions when decoding and opening links, and update status bar information.
+In the copyLinks and saveResults functions, use .then() and .catch() to handle errors in asynchronous operations.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thunder Link Converter v6 lite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        :root {
+            --primary: #3498db;
+            --primary-hover: #2980b9;
+            --primary-active: #1c6da8;
+            --success: #2ecc71;
+            --success-hover: #27ae60;
+            --success-active: #219a52;
+            --purple: #9b59b6;
+            --purple-hover: #8e44ad;
+            --purple-active: #7d3c98;
+            --warning: #f39c12;
+            --warning-hover: #e67e22;
+            --warning-active: #d35400;
+            --error: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --gray: #95a5a6;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: var(--dark);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        
+        .version {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+        
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        main {
+            padding: 25px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-title i {
+            color: var(--primary);
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-hover);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .input-area {
+            background: #ffffff;
+        }
+        
+        .result-area {
+            background: #f8f9fa;
+            border-color: var(--success);
+            min-height: 150px;
+        }
+        
+        .result-area:focus {
+            border-color: var(--success-hover);
+            box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 150px;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary:active {
+            background: var(--primary-active);
+            transform: translateY(0);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: var(--success-hover);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success:active {
+            background: var(--success-active);
+            transform: translateY(0);
+        }
+        
+        .btn-purple {
+            background: var(--purple);
+            color: white;
+        }
+        
+        .btn-purple:hover {
+            background: var(--purple-hover);
+            transform: translateY(-2px);
+        }
+        
+        .btn-purple:active {
+            background: var(--purple-active);
+            transform: translateY(0);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: var(--warning-hover);
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning:active {
+            background: var(--warning-active);
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.7;
+        }
+        
+        .status-bar {
+            background: var(--dark);
+            color: white;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .counter {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .counter span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .error {
+            color: var(--error);
+            font-weight: bold;
+        }
+        
+        .success {
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .info {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: var(--light);
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+        
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .instructions {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 600px) {
+            .btn-container {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .counter {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-bolt"></i>
+                <div>
+                    <h1>Thunder Link Converter</h1>
+                    <div class="version">v1.6 lite - Batch convert Thunder links to regular URLs</div>
+                </div>
+            </div>
+            <div class="features">
+                <div class="feature">Batch Conversion</div>
+                <div class="feature">Format Validation</div>
+                <div class="feature">Copy Links</div>
+                <div class="feature">Open in Browser</div>
+                <div class="feature">Save Results</div>
+            </div>
+        </header>
+        
+        <main>
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-pen"></i>
+                    <span>Enter Thunder links (one per line, supports batch conversion)</span>
+                </div>
+                <textarea id="input-area" class="input-area" placeholder="thunder://QUFodHRwOi8vZG93bmxvYWQuZXhhbXBsZS5jb20vZmlsZS5pc29aWg==&#10;thunder://QUFodHRwOi8vYW5vdGhlci1leGFtcGxlLmNvbS9tb3ZpZS5tcDRaWg=="></textarea>
+            </div>
+            
+            <div class="btn-container">
+                <button id="convert-btn" class="btn btn-primary">
+                    <i class="fas fa-exchange-alt"></i>
+                    Convert Links
+                </button>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Conversion Results</span>
+                </div>
+                <textarea id="result-area" class="result-area" placeholder="Conversion results will be displayed here..." readonly></textarea>
+            </div>
+            
+            <div class="btn-container">
+                <button id="copy-btn" class="btn btn-success" disabled>
+                    <i class="fas fa-copy"></i>
+                    Copy Links
+                </button>
+                <button id="open-btn" class="btn btn-purple" disabled>
+                    <i class="fas fa-external-link-alt"></i>
+                    Open Links
+                </button>
+                <button id="save-btn" class="btn btn-warning" disabled>
+                    <i class="fas fa-save"></i>
+                    Save Results
+                </button>
+            </div>
+            
+            <div class="instructions">
+                <h3><i class="fas fa-info-circle"></i> Instructions</h3>
+                <ul>
+                    <li>Enter Thunder links starting with thunder:// in the input box (one link per line)</li>
+                    <li>Click the "Convert Links" button for batch conversion</li>
+                    <li>After successful conversion, use the buttons below to operate on the results</li>
+                    <li>Supports copying converted links, opening in browser, or saving as a text file</li>
+                </ul>
+            </div>
+        </main>
+        
+        <div class="status-bar">
+            <div id="status-message">Ready</div>
+            <div class="counter">
+                <span><i class="fas fa-check-circle success"></i> Success: <span id="success-count">0</span></span>
+                <span><i class="fas fa-times-circle error"></i> Failure: <span id="error-count">0</span></span>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 Thunder Link Converter | Developer: <a href="https://github.com/helloworldpxy" target="_blank">HelloWorld05</a></p>
+            <p>Project Homepage: <a href="https://github.com/helloworldpxy/thunder-https" target="_blank">https://github.com/helloworldpxy/thunder-https</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM elements
+        const inputArea = document.getElementById('input-area');
+        const resultArea = document.getElementById('result-area');
+        const convertBtn = document.getElementById('convert-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const openBtn = document.getElementById('open-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const statusMessage = document.getElementById('status-message');
+        const successCount = document.getElementById('success-count');
+        const errorCount = document.getElementById('error-count');
+        
+        // Store converted URLs
+        let convertedUrls = [];
+        
+        // Update status bar
+        function updateStatus(message, type = 'info') {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-bar ${type}`;
+        }
+        
+        // Validate Thunder link format
+        function validateThunderUrl(url) {
+            const pattern = /^thunder:\/\/[A-Za-z0-9+/=]+$/;
+            return pattern.test(url);
+        }
+        
+        // Fix Base64 decode function
+        function base64Decode(str) {
+            // Replace special characters in Base64 string
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
+            
+            // Add Base64 padding characters
+            const pad = str.length % 4;
+            if (pad) {
+                if (pad === 1) {
+                    throw new Error('Invalid Base64 string');
+                }
+                str += new Array(4 - pad + 1).join('=');
+            }
+            
+            // Decode Base64
+            const decodedStr = atob(str);
+            const url = decodeURIComponent(decodedStr.substring(2, decodedStr.length - 2));
+            
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                throw new Error('Invalid URL format');
+            }
+            
+            return url;
+        }
+        
+        // Convert single link
+        function convertSingleLink(url) {
+            if (!validateThunderUrl(url)) {
+                return { error: `Error: ${url} - Invalid Thunder link format` };
+            }
+            
+            try {
+                const decodedUrl = base64Decode(url.substring(10));
+                return { url: decodedUrl };
+            } catch (e) {
+                return { error: `Error: ${url} - Exception during processing: ${e.message}` };
+            }
+        }
+        
+        // Convert all links
+        function convertLinks() {
+            const inputText = inputArea.value.trim();
+            
+            if (!inputText) {
+                updateStatus("Error: Please enter Thunder links", "error");
+                return;
+            }
+            
+            const thunderUrls = inputText.split('\n').map(url => url.trim()).filter(url => url.length > 0);
+            
+            if (thunderUrls.length === 0) {
+                updateStatus("Error: No valid input links", "error");
+                return;
+            }
+            
+            convertedUrls = [];
+            let outputText = "";
+            let success = 0;
+            let errors = 0;
+            
+            thunderUrls.forEach(url => {
+                const result = convertSingleLink(url);
+                
+                if (result.error) {
+                    outputText += `${result.error}\n`;
+                    errors++;
+                } else {
+                    outputText += `${result.url}\n`;
+                    convertedUrls.push(result.url);
+                    success++;
+                }
+            });
+            
+            resultArea.value = outputText.trim();
+            
+            // Update button status
+            copyBtn.disabled = openBtn.disabled = saveBtn.disabled = convertedUrls.length === 0;
+            
+            // Update counters
+            successCount.textContent = success;
+            errorCount.textContent = errors;
+            
+            // Update status bar
+            updateStatus(`Conversion complete: ${success} succeeded, ${errors} failed`, "success");
+            
+            // Scroll to top of results
+            resultArea.scrollTop = 0;
+        }
+        
+        // Copy links
+        function copyLinks() {
+            if (convertedUrls.length === 0) {
+                updateStatus("No conversion results available", "error");
+                return;
+            }
+            
+            navigator.clipboard.writeText(convertedUrls.join('\n'))
+                .then(() => updateStatus(`Copied ${convertedUrls.length} links to clipboard`, "success"))
+                .catch(err => updateStatus("Copy failed: " + err.message, "error"));
+        }
+        
+        // Open links
+        function openLinks() {
+            if (convertedUrls.length === 0) {
+                updateStatus("No links available", "error");
+                return;
+            }
+            
+            if (!confirm(`Open ${convertedUrls.length} links in new tabs? Continue?`)) {
+                return;
+            }
+            
+            convertedUrls.forEach(url => {
+                try {
+                    window.open(url, '_blank');
+                } catch (e) {
+                    updateStatus("Error opening link: " + e.message, "error");
+                }
+            });
+            
+            updateStatus(`Opening ${convertedUrls.length} links in the browser`, "success");
+        }
+        
+        // Save results
+        function saveResults() {
+            if (convertedUrls.length === 0) {
+                updateStatus("No content to save", "error");
+                return;
+            }
+            
+            const blob = new Blob([convertedUrls.join('\n')], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'thunder_links_converted.txt';
+            document.body.appendChild(a);
+            a.click();
+            
+            // Cleanup
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(a.href);
+                updateStatus(`Results saved as thunder_links_converted.txt`, "success");
+            }, 100);
+        }
+        
+        // Event listeners
+        convertBtn.addEventListener('click', convertLinks);
+        copyBtn.addEventListener('click', copyLinks);
+        openBtn.addEventListener('click', openLinks);
+        saveBtn.addEventListener('click', saveResults);
+        
+        // Initial status
+        updateStatus("Ready");
+        
+        // Add sample conversion
+        setTimeout(convertLinks, 500);
+    </script>
+</body>
+</html>
